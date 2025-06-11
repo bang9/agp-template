@@ -13,6 +13,7 @@ AGP creates a standardized knowledge layer that enables any AI assistant to unde
 ```
 .agp/
 ├── instructions.md    # This file - System rules and AI workflows
+├── requirements.md    # Project-specific user preferences and rules
 ├── .config.json       # Local configuration (user, session info)
 ├── architecture/      # Project structure and feature organization
 │   ├── overview.md     # Index of all architecture files
@@ -34,16 +35,20 @@ AGP creates a standardized knowledge layer that enables any AI assistant to unde
 
 **MANDATORY**: Before any task, execute this sequence:
 
-1. **Check for config file**: 
-   - IF `.agp/.config.json` exists → read `session.user` and `session.current`
-   - IF NOT exists → create with empty session info (user will be set via `agp start`)
+1. **Check for config file**:
+    - IF `.agp/.config.json` exists → read `session.user` and `session.current`
+    - IF NOT exists → create with empty session info (user will be set via `agp start`)
 
-2. **Load current session**:
-   - IF `session.current` path exists → read session file for context
-   - IF NOT exists → create new session file for current user
+2. **Load project requirements**:
+    - IF `.agp/requirements.md` exists → read and follow all user preferences and rules
+    - IF NOT exists → create minimal template for future use
 
-3. **Validate session directory**:
-   - IF `.agp/sessions/{user}/` does not exist → create directory and `index.md`
+3. **Load current session**:
+    - IF `session.current` path exists → read session file for context
+    - IF NOT exists → create new session file for current user
+
+4. **Validate session directory**:
+    - IF `.agp/sessions/{user}/` does not exist → create directory and `index.md`
 
 ### Workflow 1: Modifying Existing Files
 
@@ -51,11 +56,11 @@ AGP creates a standardized knowledge layer that enables any AI assistant to unde
 
 **Steps**:
 1. **Load session context**: Read `.agp/sessions/{user}/index.md`
-2. **Check file conflicts**: 
-   - Scan ALL `.agp/sessions/*/index.md` files
-   - IF target file appears in another user's "Active Files" → STOP and report conflict
+2. **Check file conflicts**:
+    - Scan ALL `.agp/sessions/*/index.md` files
+    - IF target file appears in another user's "Active Files" → STOP and report conflict
 3. **Find knowledge**: Read `.agp/project/{file-path}.md`
-   - IF knowledge file does not exist → create minimal version first
+    - IF knowledge file does not exist → create minimal version first
 4. **Follow dependencies**: Read all files mentioned in Dependencies and Related sections
 5. **Modify source code**: Make the requested changes
 6. **Update knowledge**: Modify `.agp/project/{file-path}.md` with new information
@@ -247,20 +252,20 @@ Use these patterns to find knowledge:
 
 ### `agp init`
 - **Purpose**: Initialize new AGP project
-- **Actions**: 
-  - Downloads AGP template from remote repository
-  - Analyzes project structure and generates initial knowledge files
-  - Sets up Git submodule for `.agp` directory
-  - Prompts for remote repository URL for submodule
-  - Creates initial `.gitignore` entry for `.config.json`
+- **Actions**:
+    - Downloads AGP template from remote repository
+    - Analyzes project structure and generates initial knowledge files
+    - Sets up Git submodule for `.agp` directory
+    - Prompts for remote repository URL for submodule
+    - Creates initial `.gitignore` entry for `.config.json`
 
 ### `agp start`
 - **Purpose**: Start or resume user session
 - **Actions**:
-  - Prompts for user name if not configured
-  - Creates/updates `.agp/.config.json` with session info
-  - Creates user session directory if new user
-  - Loads existing session context for returning users
+    - Prompts for user name if not configured
+    - Creates/updates `.agp/.config.json` with session info
+    - Creates user session directory if new user
+    - Loads existing session context for returning users
 
 ## Success Criteria
 
@@ -271,12 +276,35 @@ The system works when:
 - Session continuity enables seamless work resumption
 - All source files have corresponding knowledge documentation
 
+## Project Requirements Management
+
+### Requirements File (`.agp/requirements.md`)
+
+**Purpose**: Store project-specific user preferences, coding standards, and behavioral rules that AI should follow consistently.
+
+**When to Update**:
+- User expresses specific preferences during work sessions
+- User provides explicit rules or constraints
+- User corrects AI behavior with specific instructions
+- Team establishes new coding standards or conventions
+
+**Examples of Requirements**:
+- Commit message formats and restrictions
+- Code style preferences
+- Documentation standards
+- Tool usage preferences
+- Language or framework-specific rules
+
+**MANDATORY**: AI must read and follow ALL requirements in this file before any task execution.
+
 ## Critical Notes
 
 - The `.agp` directory is a Git submodule (separate from main codebase)
 - `.config.json` is local-only (added to .gitignore) and stores current user/session
+- `requirements.md` is committed to Git and shared across all users and sessions
 - All knowledge files are auto-generated by AI based on code analysis
 - Session files track user progress and prevent collaboration conflicts
 - ALWAYS follow the mandatory execution rules for consistency
+- ALWAYS check and follow requirements.md before any task
 - When in doubt, document more rather than less
 - Keep knowledge files concise but comprehensive
